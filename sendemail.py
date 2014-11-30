@@ -15,7 +15,7 @@ def sendmail(subject=None,strmsg=None):
     # you == recipient's email address
 	#Credentials
     username = 'sunnyhillsveterinaryhospital@gmail.com'
-    password = 'Nemesis[]'	
+    password = ''	
     me = 'messenger@sunnyhillsveterinaryhospital.com'
     emailto = ['eromero506@gmail.com', 'johann.romero@gmail.com']
     strmailgw = 'smtp.gmail.com'
