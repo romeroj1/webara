@@ -14,10 +14,10 @@ def sendmail(subject=None,strmsg=None):
     # me == my email address
     # you == recipient's email address
 	#Credentials
-    username = 'sunnyhillsveterinaryhospital@gmail.com'
+    username = ''
     password = ''	
-    me = 'messenger@sunnyhillsveterinaryhospital.com'
-    emailto = ['eromero506@gmail.com', 'johann.romero@gmail.com']
+    me = ''
+    emailto = ['', '']
     strmailgw = 'smtp.gmail.com'
     newmsg = email.message_from_string(strmsg)
     # Create message container - the correct MIME type is multipart/alternative.
