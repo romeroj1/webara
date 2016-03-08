@@ -21,7 +21,8 @@ def compress_avimark():
     else:
         sendemail.sendmail('Avimark Backup could not be started', 'Possible reasons are: There are open files or could not connect to Sunnyx02 \n ' + out + ' \n Will try to Stop Samba to Start backup')
         smbstatus = common.getSMBServiceStatus()
-        if 'Active: active (running)' in smbstatus:
+        if 'running' in smbstatus:
+            #print red('Testing ...')
             common.stopSamba()
             #common.getSMBStatus()
             do_avimarkTar()
@@ -39,6 +40,7 @@ def do_avimarkTar():
 def get_avimarkTar():
     '''Gets the compress avimark backup files'''
     get('/apps/backups/*.tgz', '/apps/backups/avimark/', use_sudo=True)
+    get('/apps/backups/*.tgz', '/removableUsb/portablebackups/', use_sudo=True)
     out = local('ls -lah /apps/backups/avimark/', capture=True)
     smbstatus = common.getSMBStatus()
     smbservicestatus = common.getSMBServiceStatus()
@@ -62,18 +64,29 @@ def backup_vm(All=True):
        if d in vmstatus and 'running' in vmstatus:
            print red('VM with Name=' + d + ' is still running... Will try to perform action=poweroff now') 
            vboxmgmt.stopvm(d)
+           vboxmgmt.exportvm_ovf(d)
            copy_tar_vm(d)
        else:
            print green('VM with Name=' + d + ' seems to be poweroff, starting VM backup now...')
            vboxmgmt.stopvm(d)
+           vboxmgmt.exportvm_ovf(d)
            copy_tar_vm(d)
 
+@task
 def copy_tar_vm(svrname=None):
     ''' Performs the actual tar of the VM folder and copies file to backup folder. Can't call directly. Must be call from a defined task'''
-    sendemail.sendmail('Sunnyx02 Backup', 'Starting Sunnyx02 backup now ...')
+    
+    sendemail.sendmail('function="Sunnyx02 Backup"', 'message="Starting Sunnyx02 backup now"')
+
     with lcd('/apps/vms'):
-        local('cp -R '  + svrname + '/ /apps/backups/vms/.')
         vboxmgmt.startvm(svrname)
         vmstatus = vboxmgmt.status()
         sendemail.sendmail('Sunny Hills VMs Backup', 'Completed Backup for Sunny Hills VMs. Find VMs status below: \n' + vmstatus)
+
+    strdest= '/removableUsb/vms/'
+    strsrc= '/apps/backups/vms/'
+
+    with lcd(strdest):
+        local('[[ -d /removableUsb/vms/"$(date +"%m%d%Y")" ]] || mkdir "$(date +"%m%d%Y")"')
+        local('find /apps/backups/vms/ -mtime -1 -exec cp {} /removableUsb/vms/"$(date +"%m%d%Y")" \;')
         

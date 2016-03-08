@@ -1,5 +1,6 @@
 from fabric.api import *
 from fabric.colors import *
+import datetime
 
 @task
 def startvm(name=None):
@@ -35,3 +36,10 @@ def status():
     ''' Shows status of all vms'''
     out = local('VBoxManage list vms -l | grep -e ^Name: -e ^State', capture=True) #'VBoxManage list runningvms', capture=True)
     return out
+
+@task
+def exportvm_ovf(name=None):
+    now = datetime.datetime.now()
+    strtoday = now.strftime('%Y%m%d%H%M')
+    strfilename = 'sunnyx02_' + strtoday + '.ova'
+    local('VBoxManage export "' + name + '" --output /apps/backups/vms/' + strfilename)
